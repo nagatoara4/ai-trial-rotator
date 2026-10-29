@@ -1,7 +1,6 @@
 [build]
-  base = "dashboard"
-  command = "npm install && npm run build"
-  publish = "dist"
+  publish = "dashboard/dist"
+  command = "mkdir -p dashboard/dist && cp dashboard/public/index.html dashboard/dist/index.html"
 
 [[redirects]]
   from = "/*"
