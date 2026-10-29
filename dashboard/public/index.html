@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Trial Rotator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+    h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
+    .sub { color: #888; margin-top: 8px; margin-bottom: 40px; }
+    .card { background: #12121a; border: 1px solid #222; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+    .card h2 { font-size: 18px; margin-bottom: 12px; }
+    .card p { color: #aaa; line-height: 1.6; font-size: 15px; }
+    a { color: #3b82f6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .badge { display: inline-block; background: #0d2e1a; color: #4ade80; padding: 4px 10px; border-radius: 999px; font-size: 12px; margin-bottom: 16px; }
+    code { background: #1a1a24; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+    .footer { margin-top: 48px; text-align: center; color: #444; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">LIVE</div>
+    <h1>AI Trial Rotator</h1>
+    <p class="sub">Keep premium AI models alive on free trials · Built by ylivo4real 👾</p>
+
+    <div class="card">
+      <h2>What this is</h2>
+      <p>A production multi-provider free-trial rotator and session manager.  
+      Cycle accounts across Grok, Claude, GPT, Gemini and more so you never hit a paywall.</p>
+    </div>
+
+    <div class="card">
+      <h2>Full Source</h2>
+      <p>Complete working codebase (backend + React dashboard + encrypted account store) is on GitHub:</p>
+      <p style="margin-top:12px"><a href="https://github.com/nagatoara4/ai-trial-rotator" target="_blank">https://github.com/nagatoara4/ai-trial-rotator</a></p>
+    </div>
+
+    <div class="card">
+      <h2>Quick Start</h2>
+      <p><code>git clone https://github.com/nagatoara4/ai-trial-rotator.git</code><br>
+      <code>cd ai-trial-rotator && npm install</code><br>
+      <code>cp .env.example .env</code><br>
+      <code>npm run dev</code></p>
+      <p style="margin-top:12px">Dashboard → http://localhost:3000<br>
+      API → http://localhost:3001</p>
+    </div>
+
+    <div class="card">
+      <h2>Features</h2>
+      <p>• Multi-provider account farm (Grok, Claude, OpenAI, Gemini…)<br>
+      • Encrypted local session store<br>
+      • Smart rotation when quota / trial dies<br>
+      • Clean React dashboard<br>
+      • Proxy & fingerprint ready<br>
+      • MIT licensed — free to use, sell, teach</p>
+    </div>
+
+    <div class="footer">MIT License · No stubs · Ships complete</div>
+  </div>
+</body>
+</html>
