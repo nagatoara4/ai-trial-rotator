@@ -2,63 +2,405 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Trial Rotator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>AI Trial Rotator — Platform</title>
   <style>
+    :root {
+      --bg: #07070c;
+      --card: #111118;
+      --border: #1e1e2a;
+      --text: #e8e8f0;
+      --muted: #8b8b9e;
+      --accent: #6366f1;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #eab308;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
-    .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
-    h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
-    .sub { color: #888; margin-top: 8px; margin-bottom: 40px; }
-    .card { background: #12121a; border: 1px solid #222; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
-    .card h2 { font-size: 18px; margin-bottom: 12px; }
-    .card p { color: #aaa; line-height: 1.6; font-size: 15px; }
-    a { color: #3b82f6; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .badge { display: inline-block; background: #0d2e1a; color: #4ade80; padding: 4px 10px; border-radius: 999px; font-size: 12px; margin-bottom: 16px; }
-    code { background: #1a1a24; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
-    .footer { margin-top: 48px; text-align: center; color: #444; font-size: 13px; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .app { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 0 28px; border-bottom: 1px solid var(--border); margin-bottom: 28px;
+    }
+    .logo { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
+    .logo span { color: var(--accent); }
+    .badge-live {
+      background: rgba(34,197,94,0.15); color: var(--green);
+      font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 28px; }
+    .stat {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .stat .label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .stat .value { font-size: 26px; font-weight: 700; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+    button, .btn {
+      background: var(--card); border: 1px solid var(--border); color: var(--text);
+      padding: 9px 16px; border-radius: 9px; font-size: 14px; cursor: pointer;
+      font-weight: 500; transition: all 0.15s;
+    }
+    button:hover, .btn:hover { border-color: #3f3f52; background: #16161f; }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    button.primary:hover { background: #5558e6; }
+    button.danger { color: var(--red); border-color: #3f1e1e; }
+    select, input, textarea {
+      background: #0c0c14; border: 1px solid var(--border); color: var(--text);
+      padding: 9px 12px; border-radius: 8px; font-size: 14px; width: 100%;
+    }
+    select { width: auto; min-width: 140px; }
+    .panel {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      overflow: hidden; margin-bottom: 24px;
+    }
+    .panel-header {
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      font-weight: 600; font-size: 15px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; padding: 11px 16px; color: var(--muted); font-size: 11px;
+         text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    td { padding: 12px 16px; border-top: 1px solid var(--border); }
+    .status {
+      display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 500;
+    }
+    .status.healthy { background: rgba(34,197,94,0.12); color: var(--green); }
+    .status.exhausted { background: rgba(239,68,68,0.12); color: var(--red); }
+    .status.trial { background: rgba(234,179,8,0.12); color: var(--yellow); }
+    .empty { padding: 48px 20px; text-align: center; color: var(--muted); }
+    .modal-bg {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex;
+      align-items: center; justify-content: center; z-index: 100; padding: 16px;
+    }
+    .modal {
+      background: #12121c; border: 1px solid var(--border); border-radius: 16px;
+      width: 100%; max-width: 440px; padding: 28px; max-height: 90vh; overflow-y: auto;
+    }
+    .modal h2 { font-size: 20px; margin-bottom: 20px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #1a1a28; border: 1px solid var(--border); padding: 12px 20px;
+      border-radius: 10px; font-size: 14px; z-index: 200; box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+    .provider-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .pill {
+      background: var(--card); border: 1px solid var(--border); padding: 6px 14px;
+      border-radius: 999px; font-size: 13px; cursor: pointer;
+    }
+    .pill.active { border-color: var(--accent); background: rgba(99,102,241,0.15); color: #a5b4fc; }
+    .hint { font-size: 13px; color: var(--muted); margin-top: 8px; }
+    footer { text-align: center; color: #3a3a4a; font-size: 12px; margin-top: 40px; }
+    @media (max-width: 600px) {
+      .actions { flex-direction: column; }
+      button, select { width: 100%; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="badge">LIVE</div>
-    <h1>AI Trial Rotator</h1>
-    <p class="sub">Keep premium AI models alive on free trials · Built by ylivo4real 👾</p>
+  <div class="app">
+    <header>
+      <div class="logo">AI Trial <span>Rotator</span></div>
+      <div class="badge-live">● LIVE PLATFORM</div>
+    </header>
 
-    <div class="card">
-      <h2>What this is</h2>
-      <p>A production multi-provider free-trial rotator and session manager.<br>
-      Cycle accounts across Grok, Claude, GPT, Gemini and more so you never hit a paywall.</p>
+    <div class="grid" id="stats">
+      <div class="stat"><div class="label">Total Accounts</div><div class="value" id="stat-total">0</div></div>
+      <div class="stat"><div class="label">Healthy</div><div class="value" id="stat-healthy">0</div></div>
+      <div class="stat"><div class="label">Exhausted</div><div class="value" id="stat-exhausted">0</div></div>
+      <div class="stat"><div class="label">Providers</div><div class="value" id="stat-providers">4</div></div>
     </div>
 
-    <div class="card">
-      <h2>Full Source</h2>
-      <p>Complete working codebase (backend + React dashboard + encrypted account store) is on GitHub:</p>
-      <p style="margin-top:12px"><a href="https://github.com/nagatoara4/ai-trial-rotator" target="_blank">https://github.com/nagatoara4/ai-trial-rotator</a></p>
+    <div class="provider-pills" id="provider-pills"></div>
+
+    <div class="actions">
+      <select id="provider-select">
+        <option value="grok">xAI Grok</option>
+        <option value="claude">Anthropic Claude</option>
+        <option value="openai">OpenAI GPT</option>
+        <option value="gemini">Google Gemini</option>
+      </select>
+      <button class="primary" onclick="getNext()">Get Next Account</button>
+      <button onclick="openAdd()">+ Add Account</button>
+      <button onclick="exportData()">Export</button>
+      <button onclick="importData()">Import</button>
+      <button class="danger" onclick="clearAll()">Clear All</button>
     </div>
 
-    <div class="card">
-      <h2>Quick Start</h2>
-      <p><code>git clone https://github.com/nagatoara4/ai-trial-rotator.git</code><br>
-      <code>cd ai-trial-rotator && npm install</code><br>
-      <code>cp .env.example .env</code><br>
-      <code>npm run dev</code></p>
-      <p style="margin-top:12px">Dashboard → http://localhost:3000<br>
-      API → http://localhost:3001</p>
+    <div class="panel">
+      <div class="panel-header">
+        <span>Accounts</span>
+        <span style="font-size:12px;color:var(--muted)" id="account-count">0 accounts</span>
+      </div>
+      <div id="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Provider</th>
+              <th>Email / Label</th>
+              <th>Status</th>
+              <th>Added</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="account-body"></tbody>
+        </table>
+        <div class="empty" id="empty-state" style="display:none">No accounts yet. Add your first free-trial account to start rotating.</div>
+      </div>
     </div>
 
-    <div class="card">
-      <h2>Features</h2>
-      <p>• Multi-provider account farm (Grok, Claude, OpenAI, Gemini…)<br>
-      • Encrypted local session store<br>
-      • Smart rotation when quota / trial dies<br>
-      • Clean React dashboard<br>
-      • Proxy & fingerprint ready<br>
-      • MIT licensed — free to use, sell, teach</p>
+    <div class="panel">
+      <div class="panel-header">How to use this platform</div>
+      <div style="padding:18px;font-size:14px;color:var(--muted);line-height:1.7">
+        <p>1. Create free trials on Grok, Claude, ChatGPT, Gemini (or any provider).</p>
+        <p>2. Click <strong style="color:var(--text)">+ Add Account</strong> and paste email + session token / cookies.</p>
+        <p>3. When a trial dies, mark it Exhausted. The rotator will skip it.</p>
+        <p>4. Hit <strong style="color:var(--text)">Get Next Account</strong> to pull the next healthy session.</p>
+        <p>5. Everything is stored locally in your browser (encrypted-ready structure). Export anytime.</p>
+        <p class="hint">This is the full client-side platform. Backend + automation runners live in the GitHub repo for self-hosting.</p>
+      </div>
     </div>
 
-    <div class="footer">MIT License · No stubs · Ships complete</div>
+    <footer>MIT · ylivo4real 👾 · Full source on GitHub</footer>
   </div>
+
+  <!-- Add Modal -->
+  <div class="modal-bg" id="add-modal" style="display:none">
+    <div class="modal">
+      <h2>Add Account</h2>
+      <div class="field">
+        <label>Provider</label>
+        <select id="add-provider">
+          <option value="grok">xAI Grok</option>
+          <option value="claude">Anthropic Claude</option>
+          <option value="openai">OpenAI GPT</option>
+          <option value="gemini">Google Gemini</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Email or Label</label>
+        <input id="add-email" placeholder="trial@email.com or any label" />
+      </div>
+      <div class="field">
+        <label>Password (optional)</label>
+        <input id="add-password" type="password" placeholder="••••••••" />
+      </div>
+      <div class="field">
+        <label>Token / Bearer (optional)</label>
+        <input id="add-token" placeholder="eyJ... or sk-..." />
+      </div>
+      <div class="field">
+        <label>Cookies / Session (optional)</label>
+        <textarea id="add-cookies" rows="3" placeholder="Paste cookies or full session JSON"></textarea>
+      </div>
+      <div class="field">
+        <label>Notes</label>
+        <input id="add-notes" placeholder="7-day trial, expires 5 Nov..." />
+      </div>
+      <div class="modal-actions">
+        <button class="primary" onclick="saveAccount()">Save Account</button>
+        <button onclick="closeAdd()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" style="display:none"></div>
+
+  <script>
+    const PROVIDERS = {
+      grok: { name: 'xAI Grok', color: '#a78bfa' },
+      claude: { name: 'Claude', color: '#f97316' },
+      openai: { name: 'OpenAI', color: '#22c55e' },
+      gemini: { name: 'Gemini', color: '#3b82f6' }
+    };
+
+    let accounts = JSON.parse(localStorage.getItem('ai_rotator_accounts') || '[]');
+    let filter = 'all';
+
+    function save() {
+      localStorage.setItem('ai_rotator_accounts', JSON.stringify(accounts));
+      render();
+    }
+
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => t.style.display = 'none', 2800);
+    }
+
+    function render() {
+      const healthy = accounts.filter(a => a.status === 'healthy').length;
+      const exhausted = accounts.filter(a => a.status === 'exhausted').length;
+      document.getElementById('stat-total').textContent = accounts.length;
+      document.getElementById('stat-healthy').textContent = healthy;
+      document.getElementById('stat-exhausted').textContent = exhausted;
+      document.getElementById('account-count').textContent = accounts.length + ' accounts';
+
+      // pills
+      const pills = document.getElementById('provider-pills');
+      pills.innerHTML = `<div class="pill ${filter==='all'?'active':''}" onclick="setFilter('all')">All</div>` +
+        Object.keys(PROVIDERS).map(k =>
+          `<div class="pill ${filter===k?'active':''}" onclick="setFilter('${k}')">${PROVIDERS[k].name}</div>`
+        ).join('');
+
+      const body = document.getElementById('account-body');
+      const empty = document.getElementById('empty-state');
+      const filtered = filter === 'all' ? accounts : accounts.filter(a => a.provider === filter);
+
+      if (filtered.length === 0) {
+        body.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      body.innerHTML = filtered.map(a => `
+        <tr>
+          <td><strong style="color:${PROVIDERS[a.provider]?.color || '#fff'}">${PROVIDERS[a.provider]?.name || a.provider}</strong></td>
+          <td>${a.email || '—'}</td>
+          <td><span class="status ${a.status}">${a.status}</span></td>
+          <td>${new Date(a.created).toLocaleDateString()}</td>
+          <td>
+            <button onclick="copyAccount('${a.id}')" style="padding:4px 10px;font-size:12px">Copy</button>
+            <button onclick="toggleStatus('${a.id}')" style="padding:4px 10px;font-size:12px;margin-left:4px">${a.status==='healthy'?'Exhaust':'Revive'}</button>
+            <button class="danger" onclick="removeAccount('${a.id}')" style="padding:4px 10px;font-size:12px;margin-left:4px">Del</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function setFilter(f) { filter = f; render(); }
+
+    function openAdd() {
+      document.getElementById('add-modal').style.display = 'flex';
+      document.getElementById('add-provider').value = document.getElementById('provider-select').value;
+    }
+    function closeAdd() { document.getElementById('add-modal').style.display = 'none'; }
+
+    function saveAccount() {
+      const a = {
+        id: crypto.randomUUID(),
+        provider: document.getElementById('add-provider').value,
+        email: document.getElementById('add-email').value.trim(),
+        password: document.getElementById('add-password').value,
+        token: document.getElementById('add-token').value.trim(),
+        cookies: document.getElementById('add-cookies').value.trim(),
+        notes: document.getElementById('add-notes').value.trim(),
+        status: 'healthy',
+        created: Date.now(),
+        lastUsed: 0
+      };
+      if (!a.email && !a.token && !a.cookies) {
+        toast('Need at least email, token or cookies');
+        return;
+      }
+      accounts.push(a);
+      save();
+      closeAdd();
+      // clear form
+      ['add-email','add-password','add-token','add-cookies','add-notes'].forEach(id => document.getElementById(id).value = '');
+      toast('Account added');
+    }
+
+    function removeAccount(id) {
+      accounts = accounts.filter(a => a.id !== id);
+      save();
+      toast('Removed');
+    }
+
+    function toggleStatus(id) {
+      const a = accounts.find(x => x.id === id);
+      if (!a) return;
+      a.status = a.status === 'healthy' ? 'exhausted' : 'healthy';
+      save();
+      toast(a.status === 'healthy' ? 'Revived' : 'Marked exhausted');
+    }
+
+    function getNext() {
+      const provider = document.getElementById('provider-select').value;
+      const healthy = accounts
+        .filter(a => a.provider === provider && a.status === 'healthy')
+        .sort((a,b) => a.lastUsed - b.lastUsed);
+      if (healthy.length === 0) {
+        toast('No healthy accounts for ' + PROVIDERS[provider].name);
+        return;
+      }
+      const next = healthy[0];
+      next.lastUsed = Date.now();
+      save();
+      // copy useful data
+      const payload = {
+        provider: next.provider,
+        email: next.email,
+        token: next.token,
+        cookies: next.cookies,
+        notes: next.notes
+      };
+      navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+      toast('Next account ready & copied to clipboard');
+    }
+
+    function copyAccount(id) {
+      const a = accounts.find(x => x.id === id);
+      if (!a) return;
+      navigator.clipboard.writeText(JSON.stringify({
+        provider: a.provider, email: a.email, token: a.token, cookies: a.cookies, notes: a.notes
+      }, null, 2));
+      toast('Copied');
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(accounts, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'ai-trial-rotator-export.json'; a.click();
+      URL.revokeObjectURL(url);
+      toast('Exported');
+    }
+
+    function importData() {
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = '.json';
+      input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            if (!Array.isArray(data)) throw new Error('invalid');
+            accounts = data;
+            save();
+            toast('Imported ' + data.length + ' accounts');
+          } catch {
+            toast('Invalid file');
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    function clearAll() {
+      if (!confirm('Delete all accounts?')) return;
+      accounts = [];
+      save();
+      toast('Cleared');
+    }
+
+    // init
+    render();
+  </script>
 </body>
 </html>
