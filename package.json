@@ -1,0 +1,33 @@
+{
+  "name": "ai-trial-rotator",
+  "version": "1.0.0",
+  "description": "Multi-provider AI free-trial rotator and session manager",
+  "main": "src/server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run dashboard\"",
+    "server": "node src/server/index.js",
+    "dashboard": "cd dashboard && npm run dev",
+    "build": "cd dashboard && npm run build",
+    "start": "NODE_ENV=production node src/server/index.js",
+    "test": "node --test src/**/*.test.js"
+  },
+  "keywords": ["ai", "trial", "rotator", "grok", "claude", "openai", "gemini"],
+  "author": "ylivo4real",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "uuid": "^10.0.0",
+    "better-sqlite3": "^11.3.0",
+    "crypto-js": "^4.2.0",
+    "axios": "^1.7.7",
+    "playwright": "^1.47.0",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "compression": "^1.7.4"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
